@@ -184,6 +184,9 @@ ifeq ($(DTS_CODEC_M_), true)
   LOCAL_CFLAGS += -DDTS_CODEC_M_
 endif
 
+# FFMPEG plugin
+LOCAL_C_INCLUDES += $(TOP)/external/stagefright-plugins/include
+
 LOCAL_MODULE:= libstagefright
 
 LOCAL_MODULE_TAGS := optional
