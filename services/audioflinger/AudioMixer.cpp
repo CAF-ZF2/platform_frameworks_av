@@ -308,11 +308,6 @@ bool AudioMixer::setChannelMasks(int name,
 void AudioMixer::track_t::unprepareForDownmix() {
     ALOGV("AudioMixer::unprepareForDownmix(%p)", this);
 
-    if (mPostDownmixReformatBufferProvider != NULL) {
-        delete mPostDownmixReformatBufferProvider;
-        mPostDownmixReformatBufferProvider = NULL;
-        reconfigureBufferProviders();
-    }
     mDownmixRequiresFormat = AUDIO_FORMAT_INVALID;
     if (downmixerBufferProvider != NULL) {
         // this track had previously been configured with a downmixer, delete it
@@ -368,9 +363,18 @@ status_t AudioMixer::track_t::prepareForDownmix()
 
 void AudioMixer::track_t::unprepareForReformat() {
     ALOGV("AudioMixer::unprepareForReformat(%p)", this);
+    bool requiresReconfigure = false;
     if (mReformatBufferProvider != NULL) {
         delete mReformatBufferProvider;
         mReformatBufferProvider = NULL;
+        requiresReconfigure = true;
+    }
+    if (mPostDownmixReformatBufferProvider != NULL) {
+        delete mPostDownmixReformatBufferProvider;
+        mPostDownmixReformatBufferProvider = NULL;
+        requiresReconfigure = true;
+    }
+    if (requiresReconfigure) {
         reconfigureBufferProviders();
     }
 }
@@ -441,10 +445,10 @@ void AudioMixer::deleteTrackName(int name)
     // delete the resampler
     delete track.resampler;
     track.resampler = NULL;
-    // delete the downmixer
-    mState.tracks[name].unprepareForDownmix();
     // delete the reformatter
     mState.tracks[name].unprepareForReformat();
+    // delete the downmixer
+    mState.tracks[name].unprepareForDownmix();
     // delete the timestretch provider
     delete track.mTimestretchBufferProvider;
     track.mTimestretchBufferProvider = NULL;

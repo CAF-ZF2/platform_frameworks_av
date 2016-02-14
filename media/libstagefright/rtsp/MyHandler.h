@@ -18,9 +18,7 @@
 
 #define MY_HANDLER_H_
 
-#ifndef LOG_NDEBUG
 //#define LOG_NDEBUG 0
-#endif
 
 #ifndef LOG_TAG
 #define LOG_TAG "MyHandler"
